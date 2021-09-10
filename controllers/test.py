@@ -9,8 +9,6 @@ from models import SessionLocal
 from controllers.models.auth import User, UserInDB
 
 
-
-
 router = APIRouter(tags=['test'], dependencies=[Depends(oauth2_scheme)])
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
@@ -25,5 +23,4 @@ async def read_users_me(username: str = Depends(get_current_user)):
 @router.post("/calculate_profit")
 async def calculate_profit(result: dict = Depends(service_calculate_profit)):
     return result
-
 
