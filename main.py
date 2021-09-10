@@ -2,9 +2,15 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from controllers import token, test
-from models import Base
+from config import Settings
 
-app = FastAPI()
+settings = Settings()
+
+app = FastAPI(
+    title=settings.title,
+    version=settings.version
+)
+
 app.include_router(token.router)
 app.include_router(test.router)
 

@@ -1,7 +1,6 @@
 
 from controllers.models.test import Calculate_Data
 
-
 def service_calculate_profit(cal_data: Calculate_Data):
     print("inputed money :", cal_data.money, end=", ")
     print("inputed years :", cal_data.years, end=", ")
