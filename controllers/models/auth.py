@@ -11,6 +11,7 @@ class User(BaseModel):
     full_name: Optional[str] = None
 
 class UserInDB(User):
+    id: int
     hashed_password: str
 
     class Config:
