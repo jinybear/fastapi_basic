@@ -5,7 +5,9 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import Optional
 from jose import JWTError, jwt
 
-from models.auth import Token, UserInDB
+from controllers.models.auth import Token, UserInDB
+from models import SessionLocal
+from models.user import User
 
 # to get a string like this run:
 # openssl rand -hex 32
@@ -18,22 +20,22 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-        "disabled": False,
-    },
-    "johndoe2": {
-        "username": "johndoe2",
-        "full_name": "John Doe2",
-        "email": "johndoe@example.com",
-        "hashed_password": "$2a$12$kPQoUWlMWId8cBYLyxkCxeCUrfZ38Zy9lOutlxxiKwYfTweofgOje",
-        "disabled": False,
-    }
-}
+# fake_users_db = {
+#     "johndoe": {
+#         "username": "johndoe",
+#         "full_name": "John Doe",
+#         "email": "johndoe@example.com",
+#         "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
+#         "disabled": False,
+#     },
+#     "johndoe2": {
+#         "username": "johndoe2",
+#         "full_name": "John Doe2",
+#         "email": "johndoe@example.com",
+#         "hashed_password": "$2a$12$kPQoUWlMWId8cBYLyxkCxeCUrfZ38Zy9lOutlxxiKwYfTweofgOje",
+#         "disabled": False,
+#     }
+# }
 
 
 router = APIRouter(tags=['token'])
@@ -56,9 +58,15 @@ async def login_for_access_token(response: Response, form_data: OAuth2PasswordRe
     return {"access_token": access_token, "token_type": "bearer"}
 
 def get_user(username: str):
-    if username in fake_users_db:
-        user_dict = fake_users_db[username]
-        return UserInDB(**user_dict)
+    db = SessionLocal()
+    user = db.query(User).filter(User.username == username).first()
+
+    user_data = UserInDB.from_orm(user)
+    return user_data
+
+    # if username in fake_users_db:
+    #     user_dict = fake_users_db[username]
+    #     return UserInDB(**user_dict)
 
 def authenticate_user(username: str, password: str):
     user = get_user(username)
