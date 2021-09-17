@@ -10,6 +10,9 @@ class User(BaseModel):
     email: Optional[str] = None
     full_name: Optional[str] = None
 
+class AddUser(User):
+    password: str
+
 class UserInDB(User):
     id: int
     hashed_password: str
