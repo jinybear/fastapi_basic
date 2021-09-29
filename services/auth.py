@@ -5,9 +5,9 @@ from fastapi.security import OAuth2PasswordBearer
 from typing import Optional
 from jose import jwt
 
-from app import settings
+from config import oper_settings
 from controllers.models.auth import UserInDB
-from models import SessionLocal
+import models
 from models.user import User
 
 # to get a string like this run:
@@ -35,7 +35,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 class Service_auth():
     def __get_user(self, username: str):
-        db = SessionLocal()
+        db = models.SessionLocal()
         user = db.query(User).filter(User.username == username).first()
 
         user_data = UserInDB.from_orm(user)
@@ -60,7 +60,8 @@ class Service_auth():
         else:
             expire = datetime.utcnow() + timedelta(minutes=15)
         to_encode.update({"exp": expire})
-        encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+        encoded_jwt = jwt.encode(to_encode, oper_settings.setting['token']['SECRET_KEY'],
+                                 algorithm=oper_settings.setting['token']['ALGORITHM'])
         return encoded_jwt
 
     def gen_token(self, username, password):
@@ -71,7 +72,7 @@ class Service_auth():
                 detail="Incorrect username or password",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token_expires = timedelta(minutes=oper_settings.setting['token']['ACCESS_TOKEN_EXPIRE_MINUTES'])
         access_token = self.__create_access_token(
             data={"sub": user.username}, expires_delta=access_token_expires
         )
