@@ -1,13 +1,13 @@
 from fastapi import FastAPI
-from controllers import token, test
-from config import Settings
+from controllers import auth, test
+from config import Env_settings
 
-settings = Settings()
+env_settings = Env_settings()
 
 app = FastAPI(
-    title=settings.title,
-    version=settings.version
+    title=env_settings.title,
+    version=env_settings.version
 )
 
-app.include_router(token.router)
+app.include_router(auth.router)
 app.include_router(test.router)
